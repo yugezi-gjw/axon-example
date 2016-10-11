@@ -2,9 +2,11 @@ package com.varian.ois.sample.patient.web;
 
 import com.varian.ois.sample.common.OperationResult;
 import com.varian.ois.sample.patient.command.CreatePatientCommand;
+import com.varian.ois.sample.patient.command.CreateScheduleCommand;
 import com.varian.ois.sample.patient.command.UpdatePatientCommand;
 import com.varian.ois.sample.patient.model.Patient;
 import com.varian.ois.sample.patient.model.PatientEntity;
+import com.varian.ois.sample.patient.model.ScheduleEntry;
 import com.varian.ois.sample.patient.repositories.PatientQueryRepository;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.callbacks.FutureCallback;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -36,6 +39,7 @@ public class PatientController {
         Iterable<PatientEntity> patients = patientQueryRepository.findAll();
         model.addAttribute("patients", patients);
         model.addAttribute("pat", new PatientEntity());
+        model.addAttribute("schedules", new ArrayList<ScheduleEntry>());
         return "patients";
     }
 
@@ -78,5 +82,30 @@ public class PatientController {
 //        model.addAttribute("patients", patients);
 //        model.addAttribute("pat", patient);
         return patient;
+    }
+
+    @RequestMapping("/patient/schedule")
+    @Transactional
+    @ResponseBody
+    public String schedule(@RequestParam("patId") String patId, @RequestParam("diagnose") String diagnose,
+                              @RequestParam("body_part") String bodyPart, @RequestParam("schedule_time") String scheduleTime,
+                              @RequestParam("terminal") String terminal, @RequestParam("course") String course) {
+        PatientEntity patient = patientQueryRepository.findOne(patId);
+        FutureCallback<OperationResult> callback = new FutureCallback<>();
+        if (patient != null) {
+            CreateScheduleCommand createScheduleCommand = new CreateScheduleCommand(patId, diagnose,bodyPart,scheduleTime,terminal,course);
+            commandGateway.send(createScheduleCommand, callback);
+        }
+        try {
+            OperationResult result = callback.get();
+            if (result != null) {
+                return result.getText();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

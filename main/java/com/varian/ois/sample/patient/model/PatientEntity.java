@@ -2,7 +2,12 @@ package com.varian.ois.sample.patient.model;
 
 import org.springframework.data.annotation.Id;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by gbt1220 on 9/28/2016.
@@ -21,6 +26,8 @@ public class PatientEntity {
     private String phoneNumber;
     private String address;
     private String allergyHistory;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<ScheduleEntry> scheduleList = new ArrayList<>();
 
     public PatientEntity() {
         this.identifier = "";
@@ -113,5 +120,17 @@ public class PatientEntity {
 
     public void setAllergyHistory(String allergyHistory) {
         this.allergyHistory = allergyHistory;
+    }
+
+    public List<ScheduleEntry> getScheduleList() {
+        return scheduleList;
+    }
+
+    public void setScheduleList(List<ScheduleEntry> scheduleList) {
+        this.scheduleList = scheduleList;
+    }
+
+    public void addSchedule(ScheduleEntry scheduleEntry) {
+        this.scheduleList.add(scheduleEntry);
     }
 }

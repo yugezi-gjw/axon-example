@@ -2,9 +2,11 @@ package com.varian.ois.sample.patient.commandhandler;
 
 import com.varian.ois.sample.common.OperationResult;
 import com.varian.ois.sample.patient.command.CreatePatientCommand;
+import com.varian.ois.sample.patient.command.CreateScheduleCommand;
 import com.varian.ois.sample.patient.command.UpdatePatientCommand;
 import com.varian.ois.sample.patient.common.PatientCreatedResult;
 import com.varian.ois.sample.patient.common.PatientUpdatedResult;
+import com.varian.ois.sample.patient.common.ScheduleCreatedResult;
 import com.varian.ois.sample.patient.model.Patient;
 import org.axonframework.commandhandling.annotation.CommandHandler;
 import org.axonframework.repository.Repository;
@@ -46,6 +48,17 @@ public class PatientCommandHandler {
                 updatePatientCommand.getAllergyHistory());
 
         return new PatientUpdatedResult();
+    }
+
+    @CommandHandler
+    public OperationResult handleCreateSchedule(CreateScheduleCommand createScheduleCommand) {
+        Patient patient = repository.load(createScheduleCommand.getPatientId());
+        patient.schedule(createScheduleCommand.getDiagnose(),
+                createScheduleCommand.getBodyPart(),
+                createScheduleCommand.getScheduleTime(),
+                createScheduleCommand.getTerminal(),
+                createScheduleCommand.getCourse());
+        return new ScheduleCreatedResult();
     }
 
     @Autowired

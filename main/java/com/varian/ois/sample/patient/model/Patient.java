@@ -2,6 +2,7 @@ package com.varian.ois.sample.patient.model;
 
 import com.varian.ois.sample.patient.event.PatientCreatedEvent;
 import com.varian.ois.sample.patient.event.PatientUpdatedEvent;
+import com.varian.ois.sample.patient.event.ScheduleCreatedEvent;
 import org.axonframework.eventsourcing.annotation.AbstractAnnotatedAggregateRoot;
 import org.axonframework.eventsourcing.annotation.AggregateIdentifier;
 import org.axonframework.eventsourcing.annotation.EventSourcingHandler;
@@ -32,5 +33,9 @@ public class Patient extends AbstractAnnotatedAggregateRoot {
     @Override
     public Object getIdentifier() {
         return this.patientId;
+    }
+
+    public void schedule(String diagnose, String bodyPart, String scheduleTime, String terminal, String course) {
+        apply(new ScheduleCreatedEvent(patientId, diagnose, bodyPart, scheduleTime, terminal, course));
     }
 }

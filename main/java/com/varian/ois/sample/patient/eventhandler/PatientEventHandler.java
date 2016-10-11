@@ -2,7 +2,9 @@ package com.varian.ois.sample.patient.eventhandler;
 
 import com.varian.ois.sample.patient.event.PatientCreatedEvent;
 import com.varian.ois.sample.patient.event.PatientUpdatedEvent;
+import com.varian.ois.sample.patient.event.ScheduleCreatedEvent;
 import com.varian.ois.sample.patient.model.PatientEntity;
+import com.varian.ois.sample.patient.model.ScheduleEntry;
 import com.varian.ois.sample.patient.repositories.PatientQueryRepository;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,20 @@ public class PatientEventHandler {
     @EventHandler
     public void handlePatientUpdate(PatientUpdatedEvent patientUpdatedEvent) {
         savePatientEntity(patientUpdatedEvent.getPatientId(), patientUpdatedEvent.getAddress(), patientUpdatedEvent.getAllergyHistory(), patientUpdatedEvent.getBirthday(), patientUpdatedEvent.getGender(), patientUpdatedEvent.getIdCard(), patientUpdatedEvent.getPatientNameChinese(), patientUpdatedEvent.getPatientNameEnglish(), patientUpdatedEvent.getPhoneNumber());
+    }
+
+    @EventHandler
+    public void handleScheduleCreate(ScheduleCreatedEvent scheduleCreatedEvent) {
+        PatientEntity patientEntity = patientQueryRepository.findOne(scheduleCreatedEvent.getPatientId());
+        ScheduleEntry schedule = new ScheduleEntry();
+        schedule.setDiagnose(scheduleCreatedEvent.getDiagnose());
+        schedule.setBodyPart(scheduleCreatedEvent.getBodyPart());
+        schedule.setScheduleTime(scheduleCreatedEvent.getScheduleTime());
+        schedule.setTerminal(scheduleCreatedEvent.getTerminal());
+        schedule.setCourse(scheduleCreatedEvent.getCourse());
+        patientEntity.addSchedule(schedule);
+
+        patientQueryRepository.save(patientEntity);
     }
 
     private void savePatientEntity(String patientId, String address, String allergyHistory, String birthday, String gender, String idCard, String patientNameChinese, String patientNameEnglish, String phoneNumber) {
